@@ -13,9 +13,10 @@ import cookieParser from 'cookie-parser';
 const app = express();
 
 const corsOptions = {
-  origin: `http://localhost:3000`,
+  origin: process.env.CLIENT_ORIGIN || "https://resume-io-ai.vercel.app",
   credentials: true,
 };
+app.use(cors(corsOptions));
 
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -25,11 +26,18 @@ app.use(bodyParser.json({ limit: "10mb" }));
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
-  .catch((error) => console.error("DB Connection failed ", error));
+  .catch((error) => {
+    console.error("❌ MongoDB connection failed:", error);
+    process.exit(1); 
+  });
 
 
 app.use("/api/auth", authRoutes);
 app.use("/api/pdf", pdfRoutes);
 app.use("/api/resume", authenticate, resumeRoutes);
 
-app.listen(8080, () => console.log("Server running on http://localhost:8080"));
+const PORT = process.env.PORT || 8080;
+
+app.listen(PORT, () => {
+  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+});

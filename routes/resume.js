@@ -3,6 +3,7 @@ import Resume from "../models/Resume.js";
 
 const router = express.Router();
 
+// save and update
 router.post("/", async (req, res) => {
   try {
     const { data } = req.body;
